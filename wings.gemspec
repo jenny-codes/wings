@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['jennyshih']
   spec.email         = ['jinghua.shih@gmail.com']
 
-  spec.summary       = 'a rake-based web framework inspired by Rails'
-  spec.description   = 'It is a Rails-like framework, with abridged functionality and a better name.'
+  spec.summary       = 'a webO framework inspired by Rails'
+  spec.description   = 'Wings is a rack-based, Rails-like framework, with abridged functionality and a better name.'
   spec.homepage      = 'https://github.com/jing-jenny-shih/wings'
   spec.license       = 'MIT'
 
@@ -30,4 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'pry', '~> 0.12.2'
   spec.add_development_dependency 'rr'
+
+  spec.add_runtime_dependency 'rack'
 end
