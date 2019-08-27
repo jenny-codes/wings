@@ -2,6 +2,7 @@ require 'wings/util'
 require 'wings/version'
 require 'wings/routing'
 require 'wings/controller'
+require 'wings/file_model'
 require 'wings/dependencies'
 
 module Wings

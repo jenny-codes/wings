@@ -1,7 +1,10 @@
 require 'erubis'
+require 'wings/file_model'
 
 module Wings
   class Controller
+    include Wings::Model
+
     attr_reader :env
 
     def initialize(env)
