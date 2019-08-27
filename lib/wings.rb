@@ -1,6 +1,7 @@
 require 'wings/util'
 require 'wings/version'
 require 'wings/routing'
+require 'wings/controller'
 require 'wings/dependencies'
 
 module Wings
@@ -9,14 +10,6 @@ module Wings
       klass, action = get_controller_and_action(env)
       text = klass.new(env).send(action)
       [200, { 'Content-Type' => 'text/html' }, [text]]
-    end
-  end
-
-  class Controller
-    attr_reader :env
-
-    def initialize(env)
-      @env = env
     end
   end
 end
