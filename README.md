@@ -3,9 +3,9 @@
 ## Steps
 ~~1. gem creation~~  
 ~~2. basic router/controller~~  
-3. automatic class and file loading  
-4. views and templating  
-5. models from files  
+~~3. automatic class and file loading~~  
+~~4. views and templating~~  
+~~5. models from files~~  
 6. requests and responses  
 7. ORMs and database-backed models  
 8. Rack for all frameworks  

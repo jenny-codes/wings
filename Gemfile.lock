@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    wings (0.0.4)
+    wings (0.0.5)
       erubis (~> 2.7)
       multi_json (~> 1.11)
       rack (>= 1.6.4)
