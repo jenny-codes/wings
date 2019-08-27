@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    wings (0.0.1)
+    wings (0.0.3)
       rack (>= 1.6.4)
 
 GEM

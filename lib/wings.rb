@@ -1,5 +1,7 @@
+require 'wings/util'
 require 'wings/version'
 require 'wings/routing'
+require 'wings/dependencies'
 
 module Wings
   class Application
