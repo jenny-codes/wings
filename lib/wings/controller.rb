@@ -5,25 +5,19 @@ module Wings
   class Controller
     include Wings::Model
 
-    attr_reader :env
+    attr_reader :env, :request, :response
 
     def initialize(env)
       @env = env
-    end
-
-    def render(view_name, locals = {})
-      filename = File.join 'app', 'views', controller_name, "#{view_name}.html.erb"
-      template = File.read filename
-      erb = Erubis::Eruby.new(template)
-      erb.result locals.merge(env: env).merge(instance_variable_hash)
-    end
-
-    def request
-      @requests ||= Rack::Request.new(env)
+      @request = Rack::Request.new(env)
     end
 
     def params
       request.params
+    end
+
+    def render(*args)
+      fetch_response(fetch_view(*args))
     end
 
     private
@@ -38,6 +32,18 @@ module Wings
         memo[var] = self.instance_variable_get(var)
         memo
       end
+    end
+
+    def fetch_view(view_name, locals = {})
+      filename = File.join 'app', 'views', controller_name, "#{view_name}.html.erb"
+      template = File.read filename
+      erb = Erubis::Eruby.new(template)
+      erb.result locals.merge(env: env).merge(instance_variable_hash)
+    end
+
+    def fetch_response(text, status = 200, **headers)
+      headers['Content-Type'] ||= 'text/html'
+      @response ||= Rack::Response.new(text, status, headers)
     end
   end
 end

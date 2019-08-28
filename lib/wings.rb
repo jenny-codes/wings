@@ -8,9 +8,12 @@ require 'wings/dependencies'
 module Wings
   class Application
     def call(env)
-      klass, action = get_controller_and_action(env)
-      text = klass.new(env).send(action)
-      [200, { 'Content-Type' => 'text/html' }, [text]]
+      get_controller_and_action(env) do |controller, action|
+        instance = controller.new(env)
+        instance.send(action)
+        r = instance.response
+        [r.status, r.headers, r.body]
+      end
     end
   end
 end
