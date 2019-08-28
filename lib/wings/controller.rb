@@ -17,7 +17,7 @@ module Wings
     end
 
     def render(*args)
-      fetch_response(fetch_view(*args))
+      @response = fetch_response(fetch_view(*args))
     end
 
     private
@@ -43,7 +43,7 @@ module Wings
 
     def fetch_response(text, status = 200, **headers)
       headers['Content-Type'] ||= 'text/html'
-      @response ||= Rack::Response.new(text, status, headers)
+      Rack::Response.new(text, status, headers)
     end
   end
 end
