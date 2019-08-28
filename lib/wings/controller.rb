@@ -18,6 +18,14 @@ module Wings
       erb.result locals.merge(env: env).merge(instance_variable_hash)
     end
 
+    def request
+      @requests ||= Rack::Request.new(env)
+    end
+
+    def params
+      request.params
+    end
+
     private
 
     def controller_name
