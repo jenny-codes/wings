@@ -1,28 +1,42 @@
-require 'erubis'
+require 'wings/view'
 require 'wings/file_model'
 
 module Wings
   class Controller
     include Wings::Model
 
-    attr_reader :env, :request, :response
+    attr_reader :env, :request, :params, :response
 
     def initialize(env)
-      @env = env
+      @env     = env
       @request = Rack::Request.new(env)
+      @params  = request.params
     end
 
-    def params
-      request.params
-    end
-
-    def render(*args)
+    # [options for render]
+    # locals:  local variables
+    # status:  status code
+    # headers: headers
+    def render(template, **opts)
       raise 'You can only render once!' if @response
 
-      @response = fetch_response(fetch_view(*args))
+      v = View.new(params_for_view(template, opts))
+      @response = Rack::Response.new(v.text, v.status, v.headers)
     end
 
     private
+
+    def params_for_view(template, opts = {})
+      {
+        env:           env,
+        status:        opts[:status],
+        headers:       opts[:headers],
+        template:      template,
+        local_vars:    opts[:locals],
+        controller:    controller_name,
+        instance_vars: instance_variable_hash,
+      }
+    end
 
     def controller_name
       klass = self.class.to_s.gsub(/Controller$/, '')
@@ -34,18 +48,6 @@ module Wings
         memo[var] = self.instance_variable_get(var)
         memo
       end
-    end
-
-    def fetch_view(view_name, locals = {})
-      filename = File.join 'app', 'views', controller_name, "#{view_name}.html.erb"
-      template = File.read filename
-      erb = Erubis::Eruby.new(template)
-      erb.result locals.merge(env: env).merge(instance_variable_hash)
-    end
-
-    def fetch_response(text, status = 200, **headers)
-      headers['Content-Type'] ||= 'text/html'
-      Rack::Response.new(text, status, headers)
     end
   end
 end
