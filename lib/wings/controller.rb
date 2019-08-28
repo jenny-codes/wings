@@ -17,6 +17,8 @@ module Wings
     end
 
     def render(*args)
+      raise 'You can only render once!' if @response
+
       @response = fetch_response(fetch_view(*args))
     end
 
