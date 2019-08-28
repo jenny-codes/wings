@@ -98,6 +98,18 @@ SQL
         self.save! rescue false
       end
 
+      # column accessor
+      def method_missing(name, *args)
+        unless self.class.schema.keys.include?(name.to_s)
+          return super
+        end
+
+        self.class.define_method(name.to_sym) do
+          @data[name.to_s]
+        end
+        @data[name.to_s]
+      end
+
       private
 
       def self.table
