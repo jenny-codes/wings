@@ -48,7 +48,7 @@ SQL
 
       def self.count
         sql = <<SQL
-          SELECT COUNT(*) FROM #{table}
+          SELECT COUNT(*) FROM #{table};
 SQL
         DB.execute(sql)[0][0]
       end
@@ -73,6 +73,29 @@ SQL
 
       def []=(name, value)
         @data[name.to_s] = value
+      end
+
+      def save!
+        unless @data['id']
+          self.class.create(@data)
+          return true
+        end
+
+        fields = @data.map do |key, value|
+          "#{key}=#{self.class.to_sql(value)}"
+        end.join(',')
+
+        DB.execute <<SQL
+          UPDATE #{self.class.table}
+          SET #{fields}
+          WHERE id = #{@data['id']};
+SQL
+
+        true
+      end
+
+      def save
+        self.save! rescue false
       end
 
       private
