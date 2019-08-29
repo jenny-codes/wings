@@ -8,7 +8,7 @@ module Wings
     def get_rack_app(env)
       raise 'No routes!' unless @route_obj
 
-      @route_obj.check_url(env['PATH_INFO'])
+      @route_obj.check_url(env['PATH_INFO'], env['REQUEST_METHOD'])
     end
   end
 end
@@ -18,16 +18,25 @@ class RouteObject
     @rules = []
   end
 
+  def root(dest)
+    @rules.push(
+      {
+        regex:   Regexp.new("^/?$"),
+        options: { to: dest, verb: :GET },
+      }
+    )
+  end
+
   # actions: `index`, `new`, `create`, `show`, `edit`, `update`, `destroy`
   def resources(obj, **options)
     actions = {
       index:   { path: "#{obj}"                    },
       new:     { path: "#{obj}/new"                },
-      create:  { path: "#{obj}", verb: :post       },
+      create:  { path: "#{obj}", verb: :POST       },
       show:    { path: "#{obj}/:id"                },
       edit:    { path: "#{obj}/:id/edit"           },
-      update:  { path: "#{obj}/:id", verb: :patch  },
-      destroy: { path: "#{obj}/:id", verb: :delete },
+      update:  { path: "#{obj}/:id", verb: :PATCH  },
+      destroy: { path: "#{obj}/:id", verb: :DELETE },
     }
 
     if options[:only]
@@ -63,6 +72,8 @@ class RouteObject
                   end
                end.join('/')
 
+    opts[:verb] ||= :GET
+
     @rules.push(
       {
         regex:   Regexp.new("^/#{regex}/?$"),
@@ -72,21 +83,13 @@ class RouteObject
     )
   end
 
-  def root(dest)
-    @rules.push(
-      {
-        regex:   Regexp.new("^/?$"),
-        options: { to: dest },
-      }
-    )
-  end
-
-  def check_url(url, **opts)
+  def check_url(url, req_method)
     @rules.each do |r|
-      m = r[:regex].match(url)
-      next unless m
+      m      = r[:regex].match(url)
+      params = r[:options].dup
 
-      params = r[:options] ? r[:options].dup : Hash.new
+      next unless m
+      next unless req_method == params[:verb].to_s
 
       if vars = r[:vars]
         vars.each_with_index do |v, i|
