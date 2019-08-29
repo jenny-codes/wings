@@ -84,7 +84,7 @@ class RouteObject
   end
 
   def check_url(url, req_method)
-    @rules.each do |r|
+    (@rules + default_matches).each do |r|
       m      = r[:regex].match(url)
       params = r[:options].dup
 
@@ -105,6 +105,26 @@ class RouteObject
   end
 
   private
+
+  def default_matches
+    [
+      {
+        regex:   Regexp.new('^/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?$'),
+        vars:    %w( controller id action ),
+        options: { verb: :GET },
+      },
+      {
+        regex:   Regexp.new('^/([a-zA-Z0-9]+)/([a-zA-Z0-9]+)/?$'),
+        vars:    %w( controller id ),
+        options: { verb: :GET, 'action' => 'show' },
+      },
+      {
+        regex:   Regexp.new('^/([a-zA-Z0-9]+)/?$'),
+        vars:    %w( controller ),
+        options: { verb: :GET, 'action' => 'index' },
+      },
+    ]
+  end
 
   def get_destination(dest, routing_params = {})
     return dest if dest.respond_to?(:call)
