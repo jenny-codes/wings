@@ -18,6 +18,35 @@ class RouteObject
     @rules = []
   end
 
+  # actions: `index`, `new`, `create`, `show`, `edit`, `update`, `destroy`
+  def resources(obj, **options)
+    actions = {
+      index:   { path: "#{obj}"                    },
+      new:     { path: "#{obj}/new"                },
+      create:  { path: "#{obj}", verb: :post       },
+      show:    { path: "#{obj}/:id"                },
+      edit:    { path: "#{obj}/:id/edit"           },
+      update:  { path: "#{obj}/:id", verb: :patch  },
+      destroy: { path: "#{obj}/:id", verb: :delete },
+    }
+
+    if options[:only]
+      options[:only].each do |action|
+        match actions[action][:path], "#{obj}##{action}", verb: actions[action][:verb]
+      end
+    elsif options[:except]
+      actions.each do |action, value|
+        next if options[:except].include?(action)
+
+        match value[:path], "#{obj}##{action}", verb: value[:verb]
+      end
+    else
+      actions.each do |action, value|
+        match value[:path], "#{obj}##{action}", verb: value[:verb]
+      end
+    end
+  end
+
   def match(url, *args)
     raise 'Arguments should be no more than 2' if args.count >= 2
 
