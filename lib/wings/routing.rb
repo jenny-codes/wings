@@ -92,7 +92,7 @@ class RouteObject
       m = r[:regex].match(url)
       next unless m
 
-      params = r[:options] ? r[:options][:default].dup : Hash.new
+      params = r[:options] ? r[:options].dup : Hash.new
 
       if vars = r[:vars]
         vars.each_with_index do |v, i|
