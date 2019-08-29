@@ -21,11 +21,11 @@ class RouteObject
   def match(url, *args)
     raise 'Arguments should be no more than 2' if args.count >= 2
 
-    dest    = args.first.is_a?(String) ? args.first : nil
-    options = args.last.is_a?(Hash) ? args.last : {}
+    options = args.last if args.last.is_a?(Hash)
+    dest    = args.first if args.first.is_a?(String)
     parts   = url.split('/').reject { |pt| pt.empty? }
+    vars    = []
 
-    vars = []
     regex_parts = parts.map do |part|
       if part[0] == ':'
         vars << part[1..-1]
@@ -49,14 +49,26 @@ class RouteObject
     )
   end
 
+  def root(dest)
+    @rules.push(
+      {
+        regex: Regexp.new("^/?$"),
+        dest:  dest,
+      }
+    )
+  end
+
   def check_url(url)
     @rules.each do |r|
       m = r[:regex].match(url)
       next unless m
 
-      params = r[:options][:default].dup || {}
-      r[:vars].each_with_index do |v, i|
-        params[v] = m.captures[i]
+      params = r[:options] ? r[:options][:default].dup : Hash.new
+
+      if vars = r[:vars]
+        vars.each_with_index do |v, i|
+          params[v] = m.captures[i]
+        end
       end
 
       dest = r[:dest] || "#{params['controller']}##{params['action']}"
