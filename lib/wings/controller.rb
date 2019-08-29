@@ -7,10 +7,28 @@ module Wings
 
     attr_reader :env, :request, :params, :response
 
+    # Respond to Rack
+    # The action will be used like a Rack app
+    def self.action(act, rp = {})
+      proc { |e| self.new(e).dispatch(act, rp) }
+    end
+
     def initialize(env)
       @env     = env
       @request = Rack::Request.new(env)
       @params  = request.params
+    end
+
+    def dispatch(action, routing_params = {})
+      @params.merge!(routing_params)
+
+      self.send(action)
+
+      if response
+        [response.status, response.headers, response.body]
+      else
+        render(action)
+      end
     end
 
     # [options for render]
