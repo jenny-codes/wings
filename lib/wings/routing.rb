@@ -32,29 +32,24 @@ class RouteObject
 
     if options[:only]
       options[:only].each do |action|
-        match actions[action][:path], "#{obj}##{action}", verb: actions[action][:verb]
+        match actions[action][:path], to: "#{obj}##{action}", verb: actions[action][:verb]
       end
     elsif options[:except]
       actions.each do |action, value|
         next if options[:except].include?(action)
 
-        match value[:path], "#{obj}##{action}", verb: value[:verb]
+        match value[:path], to: "#{obj}##{action}", verb: value[:verb]
       end
     else
       actions.each do |action, value|
-        match value[:path], "#{obj}##{action}", verb: value[:verb]
+        match value[:path], to: "#{obj}##{action}", verb: value[:verb]
       end
     end
   end
 
-  def match(url, *args)
-    raise 'Arguments should be no more than 2' if args.count >= 2
-
-    options = args.last if args.last.is_a?(Hash)
-    dest    = args.first if args.first.is_a?(String)
-    parts   = url.split('/').reject { |pt| pt.empty? }
-    vars    = []
-
+  def match(url, **opts)
+    parts       = url.split('/').reject { |pt| pt.empty? }
+    vars        = []
     regex_parts = parts.map do |part|
       if part[0] == ':'
         vars << part[1..-1]
@@ -68,12 +63,12 @@ class RouteObject
     end
 
     regex = regex_parts.join('/')
+
     @rules.push(
       {
         regex:   Regexp.new("^/#{regex}/?$"),
-        options: options,
+        options: opts,
         vars:    vars,
-        dest:    dest,
       }
     )
   end
@@ -81,13 +76,13 @@ class RouteObject
   def root(dest)
     @rules.push(
       {
-        regex: Regexp.new("^/?$"),
-        dest:  dest,
+        regex:   Regexp.new("^/?$"),
+        options: { to: dest },
       }
     )
   end
 
-  def check_url(url)
+  def check_url(url, **opts)
     @rules.each do |r|
       m = r[:regex].match(url)
       next unless m
@@ -100,7 +95,7 @@ class RouteObject
         end
       end
 
-      dest = r[:dest] || "#{params['controller']}##{params['action']}"
+      dest = params[:to] || "#{params['controller']}##{params['action']}"
       return get_destination(dest, params)
     end
 
