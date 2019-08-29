@@ -48,21 +48,20 @@ class RouteObject
   end
 
   def match(url, **opts)
-    parts       = url.split('/').reject { |pt| pt.empty? }
-    vars        = []
-    regex_parts = parts.map do |part|
-      if part[0] == ':'
-        vars << part[1..-1]
-        '([a-zA-Z0-9]+)'
-      elsif part[0] == '*'
-        vars << part[1..-1]
-        '(.*)'
-      else
-        part
-      end
-    end
-
-    regex = regex_parts.join('/')
+    vars  = []
+    regex = url.split('/')
+               .reject { |pt| pt.empty? }
+               .map do |part|
+                  if part[0] == ':'
+                    vars << part[1..-1]
+                    '([a-zA-Z0-9]+)'
+                  elsif part[0] == '*'
+                    vars << part[1..-1]
+                    '(.*)'
+                  else
+                    part
+                  end
+               end.join('/')
 
     @rules.push(
       {
