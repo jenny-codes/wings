@@ -1,8 +1,10 @@
 require 'wings/view'
 require 'wings/file_model'
+require 'wings/sqlite_model'
 
 module Wings
   class Controller
+    Dir["app/models/*.rb"].each { |file| require "#{Dir.pwd}/#{file}" }
     include Wings::Model
 
     attr_reader :env, :request, :params, :response

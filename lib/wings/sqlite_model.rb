@@ -5,29 +5,29 @@ require 'wings/util'
 module Wings
   module Model
     class SQLite
-      DB = SQLite3::Database.new('test.db')
-
       def self.create(values)
         keys_without_id = schema.keys - ['id']
-        formatted_vals = keys_without_id.map do |key|
-          values[key] ? to_sql(values[key]) : 'null'
+
+        db_attributes = keys_without_id.reduce({}) do |memo, key|
+          memo[key] = values[key] ? to_sql(values[key]) : 'null'
+          memo
         end
 
-        DB.execute <<SQL
-          INSERT INTO #{table} (#{keys_without_id.join(',')})
-          VALUES (#{formatted_vals.join(',')});
+        db.execute <<SQL
+          INSERT INTO #{table} (#{db_attributes.keys.join(',')})
+          VALUES (#{db_attributes.values.join(',')});
 SQL
 
         data = keys_without_id.reduce({}) do |memo, key|
           memo[key] = values[key]
           memo
         end
-        data['id'] = DB.execute('SELECT last_insert_rowid();')[0][0]
+        data['id'] = db.execute('SELECT last_insert_rowid();')[0][0]
         self.new(data)
       end
 
       def self.find(id)
-        target = DB.execute <<SQL
+        target = db.execute <<SQL
           SELECT * FROM #{table} WHERE id = #{id};
 SQL
 
@@ -36,7 +36,7 @@ SQL
       end
 
       def self.all
-        all_rows = DB.execute <<SQL
+        all_rows = db.execute <<SQL
           SELECT * FROM #{table};
 SQL
 
@@ -50,14 +50,14 @@ SQL
         sql = <<SQL
           SELECT COUNT(*) FROM #{table};
 SQL
-        DB.execute(sql)[0][0]
+        db.execute(sql)[0][0]
       end
 
       def self.schema
         return @schema if @schema
 
         @schema = {}
-        DB.table_info(table) do |row|
+        db.table_info(table) do |row|
           @schema[row['name']] = row['type']
         end
         @schema
@@ -85,7 +85,7 @@ SQL
           "#{key}=#{self.class.to_sql(value)}"
         end.join(',')
 
-        DB.execute <<SQL
+        self.class.db.execute <<SQL
           UPDATE #{self.class.table}
           SET #{fields}
           WHERE id = #{@data['id']};
@@ -111,6 +111,10 @@ SQL
       end
 
       private
+
+      def self.db
+        @@db ||= SQLite3::Database.new("db/#{self.to_s}.db")
+      end
 
       def self.table
         Wings.to_underscore name
