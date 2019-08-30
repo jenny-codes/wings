@@ -1,15 +1,88 @@
 # Ruby on Wings
 
-## Steps
-~~1. gem creation~~  
-~~2. basic router/controller~~  
-~~3. automatic class and file loading~~  
-~~4. views and templating~~  
-~~5. models from files~~  
-~~6. requests and responses~~  
-~~7. ORMs and database-backed models~~  
-~~8. Rack for all frameworks~~  
-~~9. more routing~~  
+## A Bird Eye's View of Wings Structure
+![wings structure](https://user-images.githubusercontent.com/43872616/64002900-bd3f5a00-cb3d-11e9-9e6a-d22202389b2d.png)
+
+For now the `Wings::Model` module includes `FileModel` and `SQLite` classes.
+
+## Usage
+### Wings::Application
+
+```ruby
+# your_app/config/application.rb
+
+require 'wings'
+
+# loading controllers
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'app', 'controllers')
+
+module YourApp
+  class Application < Wings::Application
+  end
+end
+```
+
+### Wings::Router
+
+```ruby
+# your_app/config.ru
+
+require './config/application'
+
+app = YourApp::Application.new
+
+app.route do
+	# route for the root path ('/'), format: '[controller#action]
+	root 'examples#index'
+
+	# REST style routes mapping, 
+	# creating routes for [:index, :new, :create, :edit, :show, :update, :destroy]
+	# options: [:only, :except]
+	resources :examples, only: [:index, :create, :show]
+
+	# standalone route matching 
+	match 'an_example', to: 'examples#an_example'
+	match 'good_ones/:id', to: 'another_controller#show'
+end
+
+run app
+```
+- **Auto Routing**: Wings provides the following three default route matching rules:
+
+```ruby
+	match ':controller/:id/:action'
+	match ':controller/:id', 'action' => 'show' 
+	match ':controller', 'action' => 'index'
+```
+### Wings::Controller
+Controllers are put into `app/controllers/` directory.
+
+```ruby
+# your_app/app/controllers/examples_controller.rb
+
+Class ExamplesController < Wings::Controller
+  def index
+  	@examples = Example.all
+  end
+
+  def create
+  	@example = Example.create(**params['quote'])
+  	
+  	render :show
+  end
+
+  def show
+  	@example = Example.find(params['id'])
+  end
+
+  def an_example
+  end
+end
+```
+
+- **Auto Template Rendering**: If `render` isn't called in the action, Wings will locate the view template in `app/views/[controller]/[view].html.erb`.
+- **Auto Instance Variable Passing**: Instance variables in the controller will be passed to its corresponding template automatically.
+
 
 ## Development
 
