@@ -32,17 +32,17 @@ require './config/application'
 app = YourApp::Application.new
 
 app.route do
-	# route for the root path ('/'), format: '[controller#action]
-	root 'examples#index'
+    # route for the root path ('/'), format: '[controller#action]
+    root 'examples#index'
 
-	# REST style routes mapping, 
-	# creating routes for [:index, :new, :create, :edit, :show, :update, :destroy]
-	# options: [:only, :except]
-	resources :examples, only: [:index, :create, :show]
+    # REST style routes mapping, 
+    # creating routes for [:index, :new, :create, :edit, :show, :update, :destroy]
+    # options: [:only, :except]
+    resources :examples, only: [:index, :create, :show]
 
-	# standalone route matching 
-	match 'an_example', to: 'examples#an_example'
-	match 'good_ones/:id', to: 'another_controller#show'
+    # standalone route matching 
+    match 'an_example', to: 'examples#an_example'
+    match 'good_ones/:id', to: 'another_controller#show'
 end
 
 run app
@@ -50,9 +50,9 @@ run app
 - **Auto Routing**: Wings provides the following three default route matching rules:
 
 ```ruby
-	match ':controller/:id/:action'
-	match ':controller/:id', 'action' => 'show' 
-	match ':controller', 'action' => 'index'
+match ':controller/:id/:action'
+match ':controller/:id', 'action' => 'show' 
+match ':controller', 'action' => 'index'
 ```
 ### Wings::Controller
 Controllers are put into `app/controllers/` directory.
@@ -62,17 +62,17 @@ Controllers are put into `app/controllers/` directory.
 
 Class ExamplesController < Wings::Controller
   def index
-  	@examples = Example.all
+    @examples = Example.all
   end
 
   def create
-  	@example = Example.create(**params['quote'])
-  	
-  	render :show
+    @example = Example.create(**params['quote'])
+    
+    render :show
   end
 
   def show
-  	@example = Example.find(params['id'])
+    @example = Example.find(params['id'])
   end
 
   def an_example
