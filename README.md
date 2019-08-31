@@ -54,6 +54,47 @@ match ':controller/:id/:action'
 match ':controller/:id', 'action' => 'show' 
 match ':controller', 'action' => 'index'
 ```
+
+### Wings::Model
+Models are put into `app/models/` directory.
+
+Wings supports two types of models: `FileModel` and `SQLite`. Below is an example of creating an `Example` model with `SQLite`.
+
+#### step 1: creating a SQLite database
+We do this by manually creating a migration file first. It creates a connection to the database in `db/[your_project].db` and then a table named `example`.
+ 
+```ruby
+require 'sqlite3'
+
+conn = SQLite3::Database.new('db/your_project.db')
+conn.execute <<SQL
+create table example (
+  id INTEGER PRIMARY KEY,
+  column1 VARCHAR(32000),
+  column2 VARCHAR(100)
+);
+SQL
+```
+Run this migration file.
+#### step 2
+Create a new file at `your_app/app/models/example.rb`
+
+```ruby
+# your_app/app/models/example.rb
+
+class Example < Wings::Model::SQLite
+end
+```
+And you're good to go!
+
+- **ORM**: `Wings::Model::SQLite` comes with a basic ORM (Object Relational Mapping), which allows you to manipulate your database objects like Ruby objects, with Ruby code. Right now the module supports 
+	- `create`: insert a row in a database table.
+	- `find`: find a specific row with id.
+	- `all`: get all rows in the table.
+	- attribute accessor/writer: each attribute is a hash key in the database object. You can read it as well as set it, and use `save!` or `save` method to update the database. 
+
+Examples can be found in the following section.
+
 ### Wings::Controller
 Controllers are put into `app/controllers/` directory.
 
@@ -66,7 +107,7 @@ Class ExamplesController < Wings::Controller
   end
 
   def create
-    @example = Example.create(**params['quote'])
+    @example = Example.create(**params['example'])
     
     render :show
   end
