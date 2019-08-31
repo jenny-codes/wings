@@ -5,11 +5,11 @@ require 'wings/version'
 Gem::Specification.new do |spec|
   spec.name          = 'wings-framework'
   spec.version       = Wings::VERSION
-  spec.authors       = ['jennyshih']
+  spec.authors       = ['Jenny Shih']
   spec.email         = ['jinghua.shih@gmail.com']
 
   spec.summary       = 'a Rack-based web framework inspired by Rails, with abridged functionality and a better name.'
-  spec.description   = 'Wings provides a MVC architecture and REST implementation, also supports ORM for database manipulation.'
+  spec.description   = 'Wings is a Rack-based, MVC framework with REST implementation, also supports ORM for database manipulation.'
   spec.homepage      = 'https://github.com/jing-jenny-shih/wings'
   spec.license       = 'MIT'
 
