@@ -113,7 +113,8 @@ SQL
       private
 
       def self.db
-        @@db ||= SQLite3::Database.new("db/#{self.to_s}.db")
+        project_name = Dir.pwd.split('/').last
+        @@db ||= SQLite3::Database.new("db/#{project_name}.db")
       end
 
       def self.table
